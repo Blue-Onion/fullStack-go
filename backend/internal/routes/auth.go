@@ -7,5 +7,5 @@ func AuthRoutes(mux *http.ServeMux){
 	authMux.HandleFunc("/hello",func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Hello"))
 	})
-	mux.Handle("/admin/",http.StripPrefix("/admin",authMux))
+	mux.Handle("/auth/",http.StripPrefix("/auth",authMux))
 }
