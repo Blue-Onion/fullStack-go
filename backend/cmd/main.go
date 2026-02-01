@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -12,13 +11,13 @@ import (
 )
 
 func main() {
-	fmt.Println("Works")
+	log.Println("Server Started")
 	router := http.NewServeMux()
-	router.HandleFunc("GET /", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello"))
+	router.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("Hello world"))
 	})
 	server := http.Server{
-		Addr:    "localhost:42067",
+		Addr:    "localhost:6160",
 		Handler: router,
 	}
 	done := make(chan os.Signal, 1)
@@ -26,19 +25,15 @@ func main() {
 	go func() {
 		err := server.ListenAndServe()
 		if err != nil {
-
-			log.Fatal(err)
-			log.Fatal(err)
+			log.Fatal(err.Error())
 		}
 	}()
 	<-done
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 	err := server.Shutdown(ctx)
 	if err != nil {
-		log.Println("Failed to Shutdown")
-
+		log.Fatal(err.Error())
 	}
-	log.Println("Server Shutdown")
-
+	log.Println("Server Shutdown Gracefully")
 }
