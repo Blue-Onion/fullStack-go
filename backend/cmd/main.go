@@ -8,24 +8,28 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/Blue-Onion/fullStack-go/internal/routes"
 )
 
 func main() {
 	log.Println("Server Started")
-	router := http.NewServeMux()
-	router.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("GET /health", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Hello world"))
 	})
 	server := http.Server{
 		Addr:    "localhost:6160",
-		Handler: router,
+		Handler: mux,
 	}
+	routes.AuthRoutes(mux)
+	routes.AdminRoutes(mux)
 	done := make(chan os.Signal, 1)
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
 		err := server.ListenAndServe()
-		if err != nil {
-			log.Fatal(err.Error())
+		if err != nil && err != http.ErrServerClosed {
+			log.Println(err.Error())
 		}
 	}()
 	<-done
